@@ -9,25 +9,15 @@ const closeModal = () => {
 }
 
 
-const getLocalStorage = () =>  JSON.parse(localStorage.getItem('dbClient')) ?? []   
-const setLocalStorage = (dbClient) => localStorage.setItem("dbClient", JSON.stringify(dbClient))
-
-const tempClient = {
-    nome: "Gustavo",
-    email: "gustavo@gmail.com",
-    celular: "47999222521",
-    cidade: "Jeriquaquara"
-}
+const getLocalStorage = () => JSON.parse(localStorage.getItem('db_client')) ?? []
+const setLocalStorage = (dbClient) => localStorage.setItem("db_client", JSON.stringify(dbClient))
 
 // CRUD - create read update delete
-
-const creatClient = (client) => {
-    const dbClient = getLocalStorage()
-    dbClient.push(client)
+const deleteClient = (index) => {
+    const dbClient = readClient()
+    dbClient.splice(index, 1)
     setLocalStorage(dbClient)
 }
-
-const readClient = () => getLocalStorage()
 
 const updateClient = (index, client) => {
     const dbClient = readClient()
@@ -35,31 +25,36 @@ const updateClient = (index, client) => {
     setLocalStorage(dbClient)
 }
 
-const deleteClient = (index) => {
-    const dbClient = readClient()
-    dbClient.splice(index, 1)
+const readClient = () => getLocalStorage()
+
+const createClient = (client) => {
+    const dbClient = getLocalStorage()
+    dbClient.push (client)
     setLocalStorage(dbClient)
+}
+
+const isValidFields = () => {
+    return document.getElementById('form').reportValidity()
 }
 
 //Interação com o layout
 
-const isValidFields = () =>{
-    document.querySelector("#form").reportValidity()
-}
-
 const clearFields = () => {
-    const fields = document.querySelectorAll(".modal-field")
+    const fields = document.querySelectorAll('.modal-field')
     fields.forEach(field => field.value = "")
+    document.getElementById('nome').dataset.index = 'new'
+    document.querySelector(".modal-header>h2").textContent  = 'Novo Cliente'
 }
 
 const saveClient = () => {
-    if(isValidFields()){
+    if (isValidFields()) {
         const client = {
-            nome:document.querySelector("#nome").value,
-            email:document.querySelector("#email").value,
-            cidade:document.querySelector("#cidade").value,
-            celular:document.querySelector("#celular").value,
-        }const index = document.getElementById('nome').dataset.index
+            nome: document.getElementById('nome').value,
+            email: document.getElementById('email').value,
+            celular: document.getElementById('celular').value,
+            cidade: document.getElementById('cidade').value
+        }
+        const index = document.getElementById('nome').dataset.index
         if (index == 'new') {
             createClient(client)
             updateTable()
@@ -90,6 +85,12 @@ const createRow = (client, index) => {
 const clearTable = () => {
     const rows = document.querySelectorAll('#tableClient>tbody tr')
     rows.forEach(row => row.parentNode.removeChild(row))
+}
+
+const updateTable = () => {
+    const dbClient = readClient()
+    clearTable()
+    dbClient.forEach(createRow)
 }
 
 const fillFields = (client) => {
@@ -129,17 +130,17 @@ const editDelete = (event) => {
 updateTable()
 
 // Eventos
-document.querySelector('#cadastrarCliente')
+document.getElementById('cadastrarCliente')
     .addEventListener('click', openModal)
 
-document.querySelector('#modalClose')
+document.getElementById('modalClose')
     .addEventListener('click', closeModal)
 
-document.querySelector('#salvar')
+document.getElementById('salvar')
     .addEventListener('click', saveClient)
 
 document.querySelector('#tableClient>tbody')
     .addEventListener('click', editDelete)
 
-document.querySelector('#cancelar')
+document.getElementById('cancelar')
     .addEventListener('click', closeModal)
